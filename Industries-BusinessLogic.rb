@@ -1,12 +1,6 @@
 require 'rubygems'
 require './Industries-DataAccess.rb'
 
-
-
-
-
-
-
 =begin
 
 industries table CREATE script
@@ -29,103 +23,49 @@ WITH (
 ALTER TABLE industries
   OWNER TO "IndustriesDb";
 
-
-
 =end
 
-
-
-
-
-
-
-
-
-
-
-
 def insertIndustriesData(sector_id,sector_url)
-#	puts sector_id + ' ' + 
+  #	puts sector_id + ' ' +
 
+  http = Curl.get(sector_url)
+  sleep(0.2)
+  #puts http.body_str
 
+  arry1=http.body_str.scan(/<a\nhref=([0-9]+)conameu.html><font\nface=arial\nsize=-1>([^<]+)</).to_a
 
+  for element in arry1
 
+    #puts element[0] + 'conameu.html' + ' ' + element[1].gsub(/\n/,' ')
 
+    industriesUrl= 'http://biz.yahoo.com/p/' + element[0] + 'conameu.html'
 
-http = Curl.get(sector_url)
-sleep(0.2)
-#puts http.body_str
+    industriesName=element[1].gsub(/\n/,' ')
 
-arry1=http.body_str.scan(/<a\nhref=([0-9]+)conameu.html><font\nface=arial\nsize=-1>([^<]+)</).to_a
+    strSql= 'insert into industries (industries_name,industries_url,sector_id) values ('
+    strSql=strSql + '\'' + industriesName + '\',\'' + industriesUrl + '\',' + sector_id + ')'
+    SqlExec(strSql)
 
+    sleep(0.2)
 
-
-
-for element in arry1
-
-
-	#puts element[0] + 'conameu.html' + ' ' + element[1].gsub(/\n/,' ')
-
-industriesUrl= 'http://biz.yahoo.com/p/' + element[0] + 'conameu.html'
-
-industriesName=element[1].gsub(/\n/,' ')
-
-strSql= 'insert into industries (industries_name,industries_url,sector_id) values ('
-strSql=strSql + '\'' + industriesName + '\',\'' + industriesUrl + '\',' + sector_id + ')'
-SqlExec(strSql)
-
-sleep(0.2)
-
-
-
+  end
 
 end
-
-
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def insertStocksData(industries_id,industries_url)
-#	puts sector_id + ' ' + 
+  #	puts sector_id + ' ' +
 
+  http = Curl.get(industries_url)
 
-
-
-
-http = Curl.get(industries_url)
-
-sleep(0.2)
-
-
-
-
-
-
-
+  sleep(0.2)
 
 =begin
 href="http://us.rd.yahoo.com/finance/industry/quote/colist/\*http://biz.yahoo.com/([^>]+)>([^<]+)</a> \(<a\nhref="http://us.rd.yahoo.com/finance/industry/quote/colist/\*([^"]+)"
 =end
 
+  arry1=http.body_str.scan(/href="http:\/\/us.rd.yahoo.com\/finance\/industry\/quote\/colist\/\*http:\/\/biz.yahoo.com\/([^>]+)>([^<]+)<\/a> \(<a\nhref="http:\/\/us.rd.yahoo.com\/finance\/industry\/quote\/colist\/\*([^"]+)"/).to_a
 
-
-
-arry1=http.body_str.scan(/href="http:\/\/us.rd.yahoo.com\/finance\/industry\/quote\/colist\/\*http:\/\/biz.yahoo.com\/([^>]+)>([^<]+)<\/a> \(<a\nhref="http:\/\/us.rd.yahoo.com\/finance\/industry\/quote\/colist\/\*([^"]+)"/).to_a
-
-#stockName=arry1[0][1]
-
+  #stockName=arry1[0][1]
 
 =begin
 arry1[0][0] =~ /\/([^\/]+)\.html/
@@ -142,34 +82,21 @@ puts strSql
 
 =end
 
+  for element in arry1
 
+    element[0] =~ /\/([^\/]+)\.html/
 
+    stockSymbol=$1
+    stockName=element[1].gsub(/\n/,' ')
+    stockName=stockName.gsub('\'','\'\'')
+    stockUrl=element[2]
 
+    strSql= 'insert into stocks (industry_id,stock_symbol,stock_name,stock_url) values ('
+    strSql=strSql + industries_id + ',\'' + stockSymbol + '\',\'' + stockName + '\',\'' + stockUrl + '\')'
+    SqlExec(strSql)
 
+    sleep(0.2)
 
-for element in arry1
-
-element[0] =~ /\/([^\/]+)\.html/
-
-stockSymbol=$1
-stockName=element[1].gsub(/\n/,' ')
-stockName=stockName.gsub('\'','\'\'')
-stockUrl=element[2]
-
-strSql= 'insert into stocks (industry_id,stock_symbol,stock_name,stock_url) values ('
-strSql=strSql + industries_id + ',\'' + stockSymbol + '\',\'' + stockName + '\',\'' + stockUrl + '\')'
-SqlExec(strSql)
-
-sleep(0.2)
-
-
-
-
-end
-
-
-
-
-
+  end
 
 end
