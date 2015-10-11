@@ -2,33 +2,25 @@ require './Industries-DataAccess.rb'
 require './Industries-Math.rb'
 require 'facets'
 
-url1 = "http://real-chart.finance.yahoo.com/table.csv?s=adarshpl.bo"
-url2= "http://real-chart.finance.yahoo.com/table.csv?s=afpo.l"
 
-# array for Stock1
-arryS1=getClosePrices(url1)
-arryS2=getClosePrices(url2)
-arryS1Log=pricesToLog(arryS1)
-arryS2Log=pricesToLog(arryS2)
+mainStock="adarshpl.bo"
+#transferEntropy = getTransferEntropy("adarshpl.bo","afpo.l")
 
-arryJoined=joinArrays(arryS1Log,arryS2Log)
 
-hashJPDF=arryJoined.frequency
 
-temp2=arryS1Log.frequency
-temp3=arryS2Log.frequency
+counter=2
 
-JPDF=hashJPDF.to_a
+while counter <= 21618 do
+#while counter <= 21618 do
 
-sum=0
-count=0
+arry1= SqlSelect('select stock_symbol from stocks where stock_id=' + counter.to_s)
 
-while count < JPDF.length do
+p arry1[0]["stock_symbol"].to_s
 
-  addMe=(JPDF[count][1]/JPDF.length.to_f) * (1/Math.log(2))*Math.log((JPDF[count][1]/JPDF.length.to_f)/((temp2[JPDF[count][0][0]]/arryS1Log.length.to_f)*(temp3[JPDF[count][0][1]]/arryS2Log.length.to_f)))
+p getTransferEntropy(mainStock,arry1[0]["stock_symbol"].to_s)
 
-  sum=sum+addMe
-  count=count+1
-end
+p counter
+counter=counter+1
+end 
 
-p sum
+
