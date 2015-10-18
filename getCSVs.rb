@@ -40,6 +40,9 @@ while stockSymbolLoop <= 21618 do
     open(fileName, 'w') { |f|
       fileLoop=0
       while fileLoop < arryS1Log.length do
+	    if fileLoop == 0
+			f.puts strStockSymbol
+		end
         f.puts arryS1Log[fileLoop]
         fileLoop=fileLoop+1
       end
